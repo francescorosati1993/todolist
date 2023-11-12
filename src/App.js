@@ -43,6 +43,7 @@ class App extends React.Component
                         loadedu:false, 
                         loadedc:false, 
                         tempCredentials:{},
+                        tempTask:{},
                         dragItem: null,
                         dragColumn: null,
                         dropColumn: null
@@ -59,19 +60,32 @@ class App extends React.Component
 
         this.setState({dragItem: e.target});
         this.setState({dragColumn: e.target.parentElement.parentElement.dataset.column});
+        console.log("DRAG",e.target.parentElement.parentElement.dataset.column)
     }
 
     dragEnd = (e, id, completed) => 
     {
-        if(!completed && this.state.dragColumn !== this.state.dropColumn && this.state.dropColumn!==undefined)
-            this.setCompleted(id)
+        if(!completed && this.state.dragColumn !== this.state.dropColumn && this.state.dropColumn!==undefined && this.state.dropColumn!==null)
+        {
+            this.setCompleted(id);
+            console.log("DRAG END",this.state.dropColumn)
+            // let buongiorno = new Audio("/buongiorno.mp3");
+            // buongiorno.play();
+        }
         else
             this.state.dragItem.classList.remove("hidden");
 
-        if(completed && this.state.dragColumn !== this.state.dropColumn && this.state.dropColumn!==undefined)
+        if(completed && this.state.dragColumn !== this.state.dropColumn && this.state.dropColumn!==undefined && this.state.dropColumn!==null)  
+        {
             this.setUncompleted(id)
+            console.log("DRAG END",this.state.dropColumn)
+            // let buongiorno = new Audio("/buongiorno.mp3");
+            // buongiorno.play();
+        }
         else
             this.state.dragItem.classList.remove("hidden");
+
+        this.setState({dragColumn: null, dropColumn:null});
     }
 
     ///
@@ -93,8 +107,9 @@ class App extends React.Component
     
     dragDrop = (e) => 
     {
-        e.preventDefault();
+        // e.preventDefault();
         this.setState({dropColumn: e.target.parentElement.dataset.column});
+        console.log("DROP",e.target.parentElement.dataset.column)
     }
     
     ///
@@ -106,6 +121,7 @@ class App extends React.Component
         this.setState({tempCredentials: tempCredentials});
     }
 
+    ///LOGIN
     userLogin = (e) =>
     {
         // let buongiorno = new Audio("/buongiorno.mp3");
@@ -133,6 +149,8 @@ class App extends React.Component
         })
     }
 
+    ///
+
     userLogout = () =>
     {
         localStorage.removeItem('email');
@@ -140,6 +158,40 @@ class App extends React.Component
 
         window.location.reload();
     }
+
+    ///NEW TASK
+
+    handleChangeTask = (e) =>
+    {
+        let tempTask = this.state.tempTask;
+        tempTask[e.target.name] = e.target.value;
+        this.setState({tempTask: tempTask});
+    }
+
+    insertTask = (e) =>
+    {
+        e.preventDefault();
+
+        var settings = {
+            "url": "users/" + this.state.user.id + "/tasks",
+            "method": "POST",
+            "timeout": 0,
+            "data": JSON.stringify(this.state.tempTask),
+            "headers": {
+            "Content-Type": "application/json"
+            }
+        };
+        
+        $.ajax(settings).done(response => {
+            let unCompleted = this.state.unCompletedTasks;
+            unCompleted.push(response);
+            this.setState({unCompletedTasks: unCompleted});
+        })
+    }
+
+
+
+    ///
 
     setCompleted = (idTask) =>
     {
@@ -233,8 +285,11 @@ class App extends React.Component
                         <h2 className="m-2">Ciao {this.state.user.name} {this.state.user.surname}</h2>
                         <button className="btn btn-danger m-2" onClick={this.userLogout}>Logout</button>
                     </div>
-                    <div className="d-flex">
-                        <Tasks unCompleted={true} unCompletedTasks={this.state.unCompletedTasks} setCompleted={this.setCompleted} dragStart={this.dragStart} dragEnd={this.dragEnd} dragOver={this.dragOver} dragEnter={this.dragEnter} dragLeave={this.dragLeave} dragDrop={this.dragDrop}/>
+                    <div className="flex justify-center mt-10">
+                        <div>🗑️</div>
+                    </div>
+                    <div className="flex">
+                        <Tasks unCompleted={true} unCompletedTasks={this.state.unCompletedTasks} setCompleted={this.setCompleted} handleChangeTask={this.handleChangeTask} insertTask={this.insertTask} dragStart={this.dragStart} dragEnd={this.dragEnd} dragOver={this.dragOver} dragEnter={this.dragEnter} dragLeave={this.dragLeave} dragDrop={this.dragDrop}/>
                         <Tasks completed={true} completedTasks={this.state.completedTasks} setUncompleted={this.setUncompleted} dragStart={this.dragStart} dragEnd={this.dragEnd}  dragOver={this.dragOver} dragEnter={this.dragEnter} dragLeave={this.dragLeave} dragDrop={this.dragDrop}/>
                     </div>
                 </div>
