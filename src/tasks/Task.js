@@ -38,11 +38,11 @@ class Task extends React.Component
             <div className="w-[100%] h-[100px] bg-amber-50 border rounded-lg mb-6 p-3 shadow-xl">
                 <div>
                     <h5>
-                        <input type="text" name="title" placeholder="Inserisci Nome Task" className="bg-transparent w-[75%]" onChange={this.props.handleChangeTask}/>
+                        <input type="text" name="title" placeholder="Inserisci Nome Task" className="bg-transparent w-[75%]" value={this.props.taskName || ''} onChange={this.props.handleChangeTask}/>
                     </h5>
                     <div className="flex">
                         <p className="w-[80%]">
-                            <textarea type="text" name="description" placeholder="Inserisci Descrizione Task" className="bg-transparent w-[100%]" onChange={this.props.handleChangeTask}/>
+                            <textarea type="text" name="description" placeholder="Inserisci Descrizione Task" className="bg-transparent w-[100%]" value={this.props.taskDescription || ''} onChange={this.props.handleChangeTask}/>
                         </p>
                         <button className="btn ml-20 h-10" onClick={this.props.insertTask}>➕</button>
                     </div>
